@@ -21,14 +21,14 @@ export class Week extends React.Component {
 
     changeZIP(e) {
         const newZip = e.target.value;
-        if(newZip.length == 5) {
+        if(newZip.length === 5) {
             this.setState({ zipCode: newZip });
         }
     }
 
     componentDidUpdate() {
         //api will return 5 days of data, 8 reports per day
-        axios.get(`http://api.openweathermap.org/data/2.5/forecast?zip=${this.state.zipCode},us&APPID=d41934cc1f75169422cefc80176d8197`)
+        axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${this.state.zipCode},us&APPID=6559a29ec4d56e86a6c3eae5dce63640`)
             .then(res => {
                 const city = `${res.data.city.name}, ${res.data.city.country}`;              
                 const monsterList = res.data.list;
@@ -38,6 +38,7 @@ export class Week extends React.Component {
                     const day = [];
                     let low = Infinity;
                     let high = -Infinity;
+                    //let problems = new Set();
                     for(let j = 0; j < 8; j++) {
                         let dayListArr = monsterList[count];
                         if(dayListArr) {
@@ -47,6 +48,17 @@ export class Week extends React.Component {
                             let dateTime= dayListArr['dt_txt'].split(' ');
                             let date = dateTime[0];
                             let time = dateTime[1];
+
+                            /*
+                            let weatherCode = dayListArr['weather'][0]['id'];
+                            console.log(weatherCode);
+                            if(weatherCode.charAt(0) === '2') { problems.add('thunderstorms');}
+                            if(weatherCode.charAt(0) === '3') { problems.add('drizzle');}
+                            if(weatherCode.charAt(0) === '5') { problems.add('rain');}
+                            if(weatherCode.charAt(0) === '6') { problems.add('snow');}
+                            if(weatherCode.charAt(0) === '7') { problems.add('weird things in the air');}
+                            if(weatherCode.charAt(0) === '8' && weatherCode.charAt(1) === '0' && weatherCode.charAt(2) !== '0') { problems.add('cloudy ');}
+*/
                             if(j > 0 && (date !== day[j-1].date)) {
                                 break;
                             }
@@ -64,17 +76,14 @@ export class Week extends React.Component {
                                 description: dayListArr['weather'][0]['description'],
                                 date,
                                 time,
-                                icon: `http://openweathermap.org/img/w/${dayListArr['weather'][0]['icon']}.png`
+                                icon: `https://openweathermap.org/img/w/${dayListArr['weather'][0]['icon']}.png`
                             });
                             count++;
                         }
                     }
-                    let tldr = "It's a pretty nice today. Go outside and frolick in some daisies.";
-                    if(high > 80) {
-                        tldr = "It's pretty hot. Maybe stay inside for now.";
-                    } else if(low < 60) {
-                        tldr = "Ooh, a little chilly today. Put on a jacket.";
-                    }
+                    let tldr="Nice day today.";
+                    //let tldr = problems.length===0 ? "It's a pretty nice today. Go outside and frolick in some daisies." 
+                        //: Array.from(problems).join(' ');
                     day.push({high, low, tldr});
                     forecast.push(day);
                 }
@@ -119,7 +128,7 @@ export class Week extends React.Component {
                 <br />
                 
                 <input type="text" ref="newZip" placeholder="Enter U.S. ZIP Code" onChange={this.changeZIP}/>
-                <h1>Showing forcast for ZIP: {this.state.zipCode}</h1>
+                <h1>Showing forecast for ZIP: {this.state.zipCode}</h1>
                 <table className="table">
                     <tbody>
                         <tr className="week">
