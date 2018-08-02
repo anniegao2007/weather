@@ -10,7 +10,7 @@
   background-color: #222;
   height: 150px;
   padding: 20px;
-  color: white;
+  color: rgb(13, 194, 255);
 }
 
 .App-title {
@@ -35,7 +35,11 @@
   background-color: lightblue;
 }
 
-.threeHourForecast p {
+.threeHourSmall {
+  border-style: solid;
+}
+
+.threeHourSmall p {
   font-size: 0.5em;
 }
 

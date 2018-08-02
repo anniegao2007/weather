@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import logo from './weatherVane.png';
 import './App.css';
 import { Week } from './Week.js';
 

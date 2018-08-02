@@ -6,9 +6,10 @@ export class Week extends React.Component {
     constructor(props) {
         super(props);
         this.threeHourForecast = this.threeHourForecast.bind(this);
+        this.changeZIP = this.changeZIP.bind(this);
     }
     state = {
-        city: '',
+        zipCode: '[enter zip above]',
         forecast: [],
         threeHours: null,
     }
@@ -18,9 +19,16 @@ export class Week extends React.Component {
         return Math.round(1.8*celsius + 32);
     }
 
-    componentDidMount() {
+    changeZIP(e) {
+        const newZip = e.target.value;
+        if(newZip.length == 5) {
+            this.setState({ zipCode: newZip });
+        }
+    }
+
+    componentDidUpdate() {
         //api will return 5 days of data, 8 reports per day
-        axios.get('http://api.openweathermap.org/data/2.5/forecast?id=5359777&APPID=d41934cc1f75169422cefc80176d8197')
+        axios.get(`http://api.openweathermap.org/data/2.5/forecast?zip=${this.state.zipCode},us&APPID=d41934cc1f75169422cefc80176d8197`)
             .then(res => {
                 const city = `${res.data.city.name}, ${res.data.city.country}`;              
                 const monsterList = res.data.list;
@@ -55,12 +63,19 @@ export class Week extends React.Component {
                                 humidity: dayListArr['main']['humidity'],
                                 description: dayListArr['weather'][0]['description'],
                                 date,
-                                time
+                                time,
+                                icon: `http://openweathermap.org/img/w/${dayListArr['weather'][0]['icon']}.png`
                             });
                             count++;
                         }
                     }
-                    day.push({high, low});
+                    let tldr = "It's a pretty nice today. Go outside and frolick in some daisies.";
+                    if(high > 80) {
+                        tldr = "It's pretty hot. Maybe stay inside for now.";
+                    } else if(low < 60) {
+                        tldr = "Ooh, a little chilly today. Put on a jacket.";
+                    }
+                    day.push({high, low, tldr});
                     forecast.push(day);
                 }
                 this.setState({ city, forecast });
@@ -69,18 +84,21 @@ export class Week extends React.Component {
 
     threeHourForecast(day) {
         //display temp, humidity, time, description
+        let tldr = this.state.forecast[day][this.state.forecast[day].length-1].tldr;
         let weather = this.state.forecast[day].filter(block => block.time);
         let forecast = (
-            <div>
-                <h2>Three Hours Forecast for {weather[0].date}</h2>
+            <div className="threeHourForecast">
+                <h2>Three Hours Forecast: {weather[0].date}</h2>
+                <h3>TL;DR: {tldr} </h3>
                 <table className="table">
                     <tbody>
                         <tr>
                             {weather.map(threeHours => (
                                 <td key={threeHours.time}>
-                                    <div className="threeHourForecast">
+                                    <div className="threeHourSmall">
                                         <p>{threeHours.time} UTC</p>
                                         <p>{threeHours.description}</p>
+                                        <img src={threeHours.icon} />
                                         <p>{threeHours.temp} F</p>
                                         <p>Humidity: {threeHours.humidity}%</p>
                                     </div>
@@ -98,7 +116,10 @@ export class Week extends React.Component {
     render() {
         return (
             <div>
-                <h2>{this.state.city}</h2>
+                <br />
+                
+                <input type="text" ref="newZip" placeholder="Enter U.S. ZIP Code" onChange={this.changeZIP}/>
+                <h1>Showing forcast for ZIP: {this.state.zipCode}</h1>
                 <table className="table">
                     <tbody>
                         <tr className="week">
