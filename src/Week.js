@@ -9,6 +9,7 @@ export class Week extends React.Component {
         this.changeZIP = this.changeZIP.bind(this);
     }
     state = {
+        oldZip: 'old zip',
         zipCode: '[enter zip above]',
         forecast: [],
         threeHours: null,
@@ -22,15 +23,15 @@ export class Week extends React.Component {
     changeZIP(e) {
         const newZip = e.target.value;
         if(newZip.length === 5) {
-            this.setState({ zipCode: newZip });
+            this.setState({ oldZip: this.state.zipCode, zipCode: newZip });
         }
     }
 
     componentDidUpdate() {
-        //api will return 5 days of data, 8 reports per day
-        axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${this.state.zipCode},us&APPID=6559a29ec4d56e86a6c3eae5dce63640`)
-            .then(res => {
-                const city = `${res.data.city.name}, ${res.data.city.country}`;              
+        if(this.state.zipCode !== this.state.oldZip) {
+            //api will return 5 days of data, 8 reports per day
+            axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${this.state.zipCode},us&APPID=6559a29ec4d56e86a6c3eae5dce63640`)
+            .then(res => {              
                 const monsterList = res.data.list;
                 const forecast = [];
                 let count = 0;
@@ -38,7 +39,7 @@ export class Week extends React.Component {
                     const day = [];
                     let low = Infinity;
                     let high = -Infinity;
-                    //let problems = new Set();
+                    let problems = new Set();
                     for(let j = 0; j < 8; j++) {
                         let dayListArr = monsterList[count];
                         if(dayListArr) {
@@ -49,16 +50,14 @@ export class Week extends React.Component {
                             let date = dateTime[0];
                             let time = dateTime[1];
 
-                            /*
-                            let weatherCode = dayListArr['weather'][0]['id'];
-                            console.log(weatherCode);
+                            let weatherCode = dayListArr['weather'][0]['id'].toString();
                             if(weatherCode.charAt(0) === '2') { problems.add('thunderstorms');}
                             if(weatherCode.charAt(0) === '3') { problems.add('drizzle');}
                             if(weatherCode.charAt(0) === '5') { problems.add('rain');}
                             if(weatherCode.charAt(0) === '6') { problems.add('snow');}
                             if(weatherCode.charAt(0) === '7') { problems.add('weird things in the air');}
-                            if(weatherCode.charAt(0) === '8' && weatherCode.charAt(1) === '0' && weatherCode.charAt(2) !== '0') { problems.add('cloudy ');}
-*/
+                            if(weatherCode.charAt(0) === '8' && weatherCode.charAt(1) === '0' && weatherCode.charAt(2) !== '0') { problems.add('cloudy');}
+
                             if(j > 0 && (date !== day[j-1].date)) {
                                 break;
                             }
@@ -81,14 +80,15 @@ export class Week extends React.Component {
                             count++;
                         }
                     }
-                    let tldr="Nice day today.";
-                    //let tldr = problems.length===0 ? "It's a pretty nice today. Go outside and frolick in some daisies." 
-                        //: Array.from(problems).join(' ');
+                    let tldr = (problems.size === 0) ? "It's a pretty nice today. Go outside and frolick in some daisies."
+                        : Array.from(problems).join(', ');
+                    
                     day.push({high, low, tldr});
                     forecast.push(day);
                 }
-                this.setState({ city, forecast });
+                this.setState({ forecast, oldZip: this.state.zipCode });
             });
+        }
     }
 
     threeHourForecast(day) {
@@ -124,7 +124,7 @@ export class Week extends React.Component {
 
     render() {
         return (
-            <div>
+            <div key={this.state.zipCode}>
                 <br />
                 
                 <input type="text" ref="newZip" placeholder="Enter U.S. ZIP Code" onChange={this.changeZIP}/>
