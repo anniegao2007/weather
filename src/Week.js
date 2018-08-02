@@ -9,6 +9,7 @@ export class Week extends React.Component {
         this.changeZIP = this.changeZIP.bind(this);
     }
     state = {
+        city: 'no city selected yet',
         oldZip: 'old zip',
         zipCode: '[enter zip above]',
         forecast: [],
@@ -31,7 +32,8 @@ export class Week extends React.Component {
         if(this.state.zipCode !== this.state.oldZip) {
             //api will return 5 days of data, 8 reports per day
             axios.get(`https://api.openweathermap.org/data/2.5/forecast?zip=${this.state.zipCode},us&APPID=6559a29ec4d56e86a6c3eae5dce63640`)
-            .then(res => {              
+            .then(res => {
+                const city = res.data.city.name;              
                 const monsterList = res.data.list;
                 const forecast = [];
                 let count = 0;
@@ -86,7 +88,7 @@ export class Week extends React.Component {
                     day.push({high, low, tldr});
                     forecast.push(day);
                 }
-                this.setState({ forecast, oldZip: this.state.zipCode });
+                this.setState({ forecast, oldZip: this.state.zipCode, city });
             });
         }
     }
@@ -128,7 +130,7 @@ export class Week extends React.Component {
                 <br />
                 
                 <input type="text" ref="newZip" placeholder="Enter U.S. ZIP Code" onChange={this.changeZIP}/>
-                <h1>Showing forecast for ZIP: {this.state.zipCode}</h1>
+                <h1>Showing forecast for {this.state.zipCode}: {this.state.city}</h1>
                 <table className="table">
                     <tbody>
                         <tr className="week">
