@@ -125,12 +125,14 @@ export class Week extends React.Component {
     }
 
     render() {
+        let instructions = this.state.zipCode.length==5 ? <p className="clickBelow">Click on a day to see details.</p> : null;
         return (
             <div key={this.state.zipCode}>
                 <br />
                 
                 <input type="text" ref="newZip" placeholder="Enter U.S. ZIP Code" onChange={this.changeZIP}/>
                 <h1>Showing forecast for {this.state.zipCode}: {this.state.city}</h1>
+                {instructions}
                 <table className="table">
                     <tbody>
                         <tr className="week">
