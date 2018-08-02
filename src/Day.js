@@ -5,7 +5,7 @@ export class Day extends React.Component {
         if(this.props.weather) {
             let weather = this.props.weather;
             return (
-                <div>
+                <div className="Day" onClick={this.props.onClick}>
                     <h2>{weather[0].date}</h2>
                     <h3>{weather[0].description}</h3>
                     <p>Low: {weather[weather.length-1].low} F</p>

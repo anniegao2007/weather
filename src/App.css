@@ -20,3 +20,31 @@
 .App-intro {
   font-size: large;
 }
+
+.table {
+  width: 60%;
+  margin: auto;
+}
+
+.week {
+  display: flex;
+  justify-content: space-between;
+}
+
+.threeHourForecast {
+  background-color: lightblue;
+}
+
+.threeHourForecast p {
+  font-size: 0.5em;
+}
+
+.Day {
+  border-style: solid;
+  border-width: 2mm;
+  border-color: gray;
+}
+
+.Day:hover {
+  background-color: darkgray;
+}

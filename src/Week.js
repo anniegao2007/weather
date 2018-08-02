@@ -3,9 +3,14 @@ import { Day } from './Day.js';
 import axios from 'axios';
 
 export class Week extends React.Component {
+    constructor(props) {
+        super(props);
+        this.threeHourForecast = this.threeHourForecast.bind(this);
+    }
     state = {
         city: '',
-        forecast: []
+        forecast: [],
+        threeHours: null,
     }
 
     kelvinToFahrenheit(tmp) {
@@ -62,21 +67,50 @@ export class Week extends React.Component {
             });
     }
 
+    threeHourForecast(day) {
+        //display temp, humidity, time, description
+        let weather = this.state.forecast[day].filter(block => block.time);
+        let forecast = (
+            <div>
+                <h2>Three Hours Forecast for {weather[0].date}</h2>
+                <table className="table">
+                    <tbody>
+                        <tr>
+                            {weather.map(threeHours => (
+                                <td key={threeHours.time}>
+                                    <div className="threeHourForecast">
+                                        <p>{threeHours.time} UTC</p>
+                                        <p>{threeHours.description}</p>
+                                        <p>{threeHours.temp} F</p>
+                                        <p>Humidity: {threeHours.humidity}%</p>
+                                    </div>
+                                </td>
+                            ))}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        );        
+        
+        this.setState({ threeHours: forecast });
+    }
+
     render() {
         return (
             <div>
                 <h2>{this.state.city}</h2>
-                <table>
+                <table className="table">
                     <tbody>
-                        <tr>
-                            <td><Day weather={this.state.forecast[0]}/></td>
-                            <td><Day weather={this.state.forecast[1]}/></td>
-                            <td><Day weather={this.state.forecast[2]}/></td>
-                            <td><Day weather={this.state.forecast[3]}/></td>
-                            <td><Day weather={this.state.forecast[4]}/></td>
+                        <tr className="week">
+                            <td><Day weather={this.state.forecast[0]} onClick={() => this.threeHourForecast(0)}/></td>
+                            <td><Day weather={this.state.forecast[1]} onClick={() => this.threeHourForecast(1)}/></td>
+                            <td><Day weather={this.state.forecast[2]} onClick={() => this.threeHourForecast(2)}/></td>
+                            <td><Day weather={this.state.forecast[3]} onClick={() => this.threeHourForecast(3)}/></td>
+                            <td><Day weather={this.state.forecast[4]} onClick={() => this.threeHourForecast(4)}/></td>
                         </tr>
                     </tbody>
                 </table>
+                <h2>{ this.state.threeHours }</h2>
             </div>
         );
     }
